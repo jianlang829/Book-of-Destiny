@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#8B00FF">
+    <title>🔮 命运之书</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* 简单的CSS样式 */
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center; /* 垂直居中 */
+            min-height: 100vh;   /* 全高，确保垂直居中有空间 */
+            padding: 20px;
+            margin: 0;
+            font-family: 'Noto Serif SC', 'Microsoft YaHei', serif;
+        }
+        .container {
+            /* 调整大小为 3:4 比例，例如 300px x 400px */
+            width: 450px;
+            height: 600px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(138, 43, 226, 0.15);
+            padding: 30px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            backdrop-filter: blur(10px);
+            /* 移除了 max-width，因为我们现在指定了固定宽高 */
+            overflow: auto; /* 防止内容溢出 */
+        }
+        h1 {
+            color: #8B00FF;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+        input[type="text"] {
+            width: 90%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus {
+            border-color: #8B00FF;
+            box-shadow: 0 0 0 4px rgba(139, 0, 255, 0.1);
+        }
+        button {
+            background: linear-gradient(135deg, #9C27B0, #673AB7);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 15px 0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(139, 0, 255, 0.2);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        #thinking {
+            color: #8B00FF;
+            margin: 15px 0;
+            font-style: italic;
+            font-weight: 500;
+        }
+        #result {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 1px dashed #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+            text-align: left;
+            min-height: 120px;
+            white-space: pre-line;
+            font-size: 17px;
+            line-height: 1.8;
+            color: #333;
+        }
+        #result strong {
+            color: #8B00FF;
+        }
+        #result em {
+            color: #d32f2f;
+            font-weight: 600;
+        }
+        .blinking {
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔮 命运之书</h1>
+        <label for="question">写下你的问题：</label>
+        <input type="text" id="question" placeholder="例如：我今天过得好吗？">
+        <button onclick="askQuestion()">📜 提问</button>
+        <div id="thinking"></div>
+        <div id="result"></div>
+    </div>
+    <script>
+        // 请确保这里包含了 books.txt 中的所有内容
+        const book = [
+            "柔韧性",
+            "过好现在最重要",
+            "别当烂好人",
+            "坚持信念",
+            "生命不可比较",
+            "活在当下",
+            "没有一个冬天不可逾越",
+            "凡是过去，皆为序章",
+            "低调谦逊、内敛深沉",
+            "没有最好只有更好",
+            "愿所有的美好，都如你所愿",
+            "命运负责洗牌，但是玩牌的是我们自己！",
+            "在敌人面前，谁先镇定下来，谁就离胜利不远了。",
+            "社会上要想分出层次，只有一个办法，那就是竞争，你必须努力，否则结局就是被压在社会的底层。"
+            // 请将 books.txt 的所有行都复制到这里
+        ];
+
+        function askQuestion() {
+            const questionInput = document.getElementById('question');
+            const thinkingDiv = document.getElementById('thinking');
+            const resultDiv = document.getElementById('result');
+            const question = questionInput.value.trim();
+            
+            if (!question) {
+                alert("请先写下你的问题！");
+                return;
+            }
+
+            // 显示“正在翻动书页”，并添加闪烁类
+            thinkingDiv.textContent = "📖 正在翻动书页...";
+            thinkingDiv.classList.add("blinking");
+
+            // 使用 setTimeout 模拟思考时间
+            setTimeout(() => {
+                // ✅ 关键修复：从 book 数组中随机选择一个答案
+                const randomIndex = Math.floor(Math.random() * book.length);
+                const answer = book[randomIndex]; // 定义 answer 变量
+
+                // 停止思考动画，显示结果
+                thinkingDiv.textContent = "";
+                thinkingDiv.classList.remove("blinking");
+                
+                // 显示问题和答案
+                resultDiv.innerHTML = `<strong>${question} ?</strong><br><br>命运之书说：<br><em>${answer}</em>`;
+            }, 1500); // 1.5秒后显示答案
+        }
+
+        // 回车键提问
+        document.getElementById('question').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                askQuestion();
+            }
+        });
+    </script>
+</body>
+</html>
