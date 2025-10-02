@@ -81,6 +81,7 @@
             font-size: 16px;
             outline: none;
             transition: all 0.3s ease;
+            box-sizing: border-box;
         }
         input[type="text"]:focus {
             border-color: #8B00FF;
@@ -108,6 +109,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            box-sizing: border-box;
         }
         button:hover {
             transform: translateY(-2px);
@@ -164,6 +166,7 @@
             font-family: 'Ma Shan Zheng', cursive;
             position: relative;
             overflow: hidden;
+            box-sizing: border-box;
         }
         #result::before {
             content: '';
@@ -201,40 +204,72 @@
             color: #8B00FF;
             padding: 8px 16px;
             font-size: 14px;
+            border-radius: 6px;
         }
         .action-btn:hover {
             background-color: rgba(139, 0, 255, 0.1);
         }
+        @media (max-width: 480px) {
+            .container {
+                width: 90%;
+                height: auto;
+                min-height: 600px;
+            }
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" role="main">
         <div class="book-spine"></div>
-        <h1>🔮 命运之书</h1>
+        <h1 aria-label="命运之书标题">🔮 命运之书</h1>
         <div class="input-container">
-            <div class="example-text">示例：我下周的考试能顺利吗？</div>
-            <input type="text" id="question" placeholder="写下你的问题..." required pattern=".{3,}">
+            <div class="example-text" aria-hidden="true">示例：我下周的考试能顺利吗？</div>
+            <input type="text"
+                   id="question"
+                   placeholder="写下你的问题..."
+                   required
+                   pattern=".{3,}"
+                   aria-label="请输入您的问题"
+                   autocomplete="off">
         </div>
         <div class="button-group">
-            <button onclick="askQuestion()">
+            <button onclick="askQuestion()" aria-label="提问">
                 <i class="fas fa-book"></i> 提问
             </button>
-            <button class="reset-btn" onclick="resetAll()">
+            <button class="reset-btn" onclick="resetAll()" aria-label="重置">
                 <i class="fas fa-redo"></i> 重置
             </button>
         </div>
-        <div id="thinking"></div>
-        <div id="result"></div>
-        <div class="actions" id="actions" style="display: none;">
-            <button class="action-btn" onclick="saveAnswer()">
+        <div id="thinking" aria-live="polite"></div>
+        <div id="result" aria-live="assertive"></div>
+        <div class="actions" id="actions" style="display: none;" role="toolbar">
+            <button class="action-btn" onclick="saveAnswer()" aria-label="保存答案">
                 <i class="fas fa-image"></i> 保存答案
             </button>
-            <button class="action-btn" onclick="shareAnswer()">
+            <button class="action-btn" onclick="shareAnswer()" aria-label="分享答案">
                 <i class="fas fa-share-alt"></i> 分享
             </button>
         </div>
     </div>
     <script>
+        // 预加载图片以提高性能
+        const preloadImage = (url) => {
+            const img = new Image();
+            img.src = url;
+        };
+
+        // 预加载背景图片
+        preloadImage('https://picsum.photos/id/307/800/1000');
+        preloadImage('https://picsum.photos/id/106/800/800');
+
         const book = [
             "柔韧性是应对变化的最好姿态",
             "过好现在最重要，未来自会明朗",
@@ -273,6 +308,13 @@
             "人生没有白走的路，每一步都算数"
         ];
 
+        // 安全转义HTML
+        const escapeHtml = (text) => {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        };
+
         function askQuestion() {
             const questionInput = document.getElementById('question');
             const thinkingDiv = document.getElementById('thinking');
@@ -282,6 +324,12 @@
 
             if (!question) {
                 alert("请先写下你的问题！");
+                return;
+            }
+
+            // 输入验证
+            if (question.length < 3) {
+                alert("问题至少需要3个字符！");
                 return;
             }
 
@@ -303,10 +351,12 @@
             setTimeout(() => {
                 const randomIndex = Math.floor(Math.random() * book.length);
                 const answer = book[randomIndex];
+                const safeQuestion = escapeHtml(question);
+                const safeAnswer = escapeHtml(answer);
 
                 // 显示结果
                 thinkingDiv.innerHTML = "";
-                resultDiv.innerHTML = `<strong>${question} ?</strong><br><br>命运之书说：<br><em>${answer}</em>`;
+                resultDiv.innerHTML = `<strong>${safeQuestion} ?</strong><br><br>命运之书说：<br><em>${safeAnswer}</em>`;
                 actionsDiv.style.display = "flex";
             }, 1800);
         }
@@ -319,18 +369,30 @@
         }
 
         function saveAnswer() {
-            alert("答案已保存到你的命运记录中！");
+            const result = document.getElementById('result').innerText;
+            if (result) {
+                localStorage.setItem('fortuneBookAnswer', result);
+                alert("答案已保存到你的命运记录中！");
+            }
         }
 
         function shareAnswer() {
             const result = document.getElementById('result').innerText;
+            if (!result) return;
+
             if (navigator.share) {
                 navigator.share({
                     title: '命运之书的启示',
                     text: result
                 }).catch(console.error);
             } else {
-                alert("你的浏览器不支持分享功能，可手动复制分享");
+                const textarea = document.createElement('textarea');
+                textarea.value = result;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("已复制到剪贴板，可手动分享");
             }
         }
 
@@ -339,6 +401,11 @@
             if (e.key === 'Enter') {
                 askQuestion();
             }
+        });
+
+        // 页面加载完成后预加载资源
+        window.addEventListener('load', () => {
+            // 可以在这里添加更多预加载逻辑
         });
     </script>
 </body>
