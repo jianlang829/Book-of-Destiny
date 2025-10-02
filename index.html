@@ -5,37 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#8B00FF">
     <title>🔮 命运之书</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* 简单的CSS样式 */
         body {
             background-color: #f0f2f5;
             display: flex;
             justify-content: center;
-            align-items: center; /* 垂直居中 */
-            min-height: 100vh;   /* 全高，确保垂直居中有空间 */
+            align-items: center;
+            min-height: 100vh;
             padding: 20px;
             margin: 0;
             font-family: 'Noto Serif SC', 'Microsoft YaHei', serif;
+            background-image: radial-gradient(#9C27B015 1px, transparent 1px);
+            background-size: 30px 30px;
         }
         .container {
-            /* 调整大小为 3:4 比例，例如 300px x 400px */
             width: 450px;
             height: 600px;
             background-color: white;
             border-radius: 20px;
-            box-shadow: 0 8px 30px rgba(138, 43, 226, 0.15);
+            box-shadow: 0 8px 30px rgba(138, 43, 226, 0.2);
             padding: 30px;
             text-align: center;
             border: 1px solid #e0e0e0;
             backdrop-filter: blur(10px);
-            /* 移除了 max-width，因为我们现在指定了固定宽高 */
-            overflow: auto; /* 防止内容溢出 */
+            overflow: hidden;
+            position: relative;
+            background-image: url('https://picsum.photos/id/307/800/1000');
+            background-size: cover;
+            background-position: center;
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.92);
+            z-index: -1;
+        }
+        .book-spine {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 10px;
+            background: linear-gradient(90deg, #673AB7, #9C27B0);
+            border-radius: 3px 0 0 3px;
         }
         h1 {
             color: #8B00FF;
             margin-bottom: 25px;
             font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(139, 0, 255, 0.1);
+        }
+        .input-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        .example-text {
+            position: absolute;
+            left: 20px;
+            top: -20px;
+            font-size: 12px;
+            color: #666;
+            text-align: left;
         }
         input[type="text"] {
             width: 90%;
@@ -44,11 +80,20 @@
             border-radius: 10px;
             font-size: 16px;
             outline: none;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
         }
         input[type="text"]:focus {
             border-color: #8B00FF;
             box-shadow: 0 0 0 4px rgba(139, 0, 255, 0.1);
+        }
+        input[type="text"]:invalid {
+            border-color: #ff4444;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
         }
         button {
             background: linear-gradient(135deg, #9C27B0, #673AB7);
@@ -59,8 +104,10 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: 500;
-            margin: 15px 0;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         button:hover {
             transform: translateY(-2px);
@@ -69,11 +116,38 @@
         button:active {
             transform: translateY(0);
         }
+        button.reset-btn {
+            background: linear-gradient(135deg, #757575, #424242);
+        }
         #thinking {
             color: #8B00FF;
-            margin: 15px 0;
+            margin: 25px 0;
             font-style: italic;
             font-weight: 500;
+            height: 24px;
+        }
+        .book-animation {
+            perspective: 1000px;
+            height: 24px;
+        }
+        .page {
+            display: inline-block;
+            width: 15px;
+            height: 24px;
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 2px;
+            margin: 0 -2px;
+            transform-origin: left center;
+            animation: flip 1.5s infinite ease-in-out;
+        }
+        .page:nth-child(2) { animation-delay: 0.1s; }
+        .page:nth-child(3) { animation-delay: 0.2s; }
+        .page:nth-child(4) { animation-delay: 0.3s; }
+        .page:nth-child(5) { animation-delay: 0.4s; }
+        @keyframes flip {
+            0%, 100% { transform: rotateY(0deg); opacity: 1; }
+            50% { transform: rotateY(-180deg); opacity: 0.3; }
         }
         #result {
             background: linear-gradient(135deg, #f8f9fa, #e9ecef);
@@ -82,85 +156,182 @@
             padding: 20px;
             margin-top: 15px;
             text-align: left;
-            min-height: 120px;
+            min-height: 150px;
             white-space: pre-line;
             font-size: 17px;
             line-height: 1.8;
             color: #333;
+            font-family: 'Ma Shan Zheng', cursive;
+            position: relative;
+            overflow: hidden;
+        }
+        #result::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://picsum.photos/id/106/800/800');
+            background-size: cover;
+            opacity: 0.05;
+            z-index: 0;
+        }
+        #result > * {
+            position: relative;
+            z-index: 1;
         }
         #result strong {
             color: #8B00FF;
+            font-family: 'Noto Serif SC', serif;
         }
         #result em {
             color: #d32f2f;
-            font-weight: 600;
+            font-style: normal;
         }
-        .blinking {
-            animation: blink 1.5s infinite;
+        .actions {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
         }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+        .action-btn {
+            background: none;
+            border: 1px solid #8B00FF;
+            color: #8B00FF;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        .action-btn:hover {
+            background-color: rgba(139, 0, 255, 0.1);
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="book-spine"></div>
         <h1>🔮 命运之书</h1>
-        <label for="question">写下你的问题：</label>
-        <input type="text" id="question" placeholder="例如：我今天过得好吗？">
-        <button onclick="askQuestion()">📜 提问</button>
+        <div class="input-container">
+            <div class="example-text">示例：我下周的考试能顺利吗？</div>
+            <input type="text" id="question" placeholder="写下你的问题..." required pattern=".{3,}">
+        </div>
+        <div class="button-group">
+            <button onclick="askQuestion()">
+                <i class="fas fa-book"></i> 提问
+            </button>
+            <button class="reset-btn" onclick="resetAll()">
+                <i class="fas fa-redo"></i> 重置
+            </button>
+        </div>
         <div id="thinking"></div>
         <div id="result"></div>
+        <div class="actions" id="actions" style="display: none;">
+            <button class="action-btn" onclick="saveAnswer()">
+                <i class="fas fa-image"></i> 保存答案
+            </button>
+            <button class="action-btn" onclick="shareAnswer()">
+                <i class="fas fa-share-alt"></i> 分享
+            </button>
+        </div>
     </div>
     <script>
-        // 请确保这里包含了 books.txt 中的所有内容
         const book = [
-            "柔韧性",
-            "过好现在最重要",
-            "别当烂好人",
-            "坚持信念",
-            "生命不可比较",
-            "活在当下",
-            "没有一个冬天不可逾越",
-            "凡是过去，皆为序章",
-            "低调谦逊、内敛深沉",
-            "没有最好只有更好",
-            "愿所有的美好，都如你所愿",
+            "柔韧性是应对变化的最好姿态",
+            "过好现在最重要，未来自会明朗",
+            "别当烂好人，你的善良需要带点锋芒",
+            "坚持信念，但也要学会灵活变通",
+            "生命不可比较，每个人都有自己的时区",
+            "活在当下，便是对生命最好的致敬",
+            "没有一个冬天不可逾越，春天终将到来",
+            "凡是过去，皆为序章，未来仍可期待",
+            "低调谦逊、内敛深沉，是成熟的标志",
+            "没有最好只有更好，进步永无止境",
+            "愿所有的美好，都如你所愿如期而至",
             "命运负责洗牌，但是玩牌的是我们自己！",
-            "在敌人面前，谁先镇定下来，谁就离胜利不远了。",
-            "社会上要想分出层次，只有一个办法，那就是竞争，你必须努力，否则结局就是被压在社会的底层。"
-            // 请将 books.txt 的所有行都复制到这里
+            "在敌人面前，谁先镇定下来，谁就离胜利不远了",
+            "社会上要想分出层次，只有一个办法，那就是竞争",
+            "你今天的选择，正在塑造明天的自己",
+            "真正的平静，不是避开喧嚣，而是在心中修篱种菊",
+            "所有的失去，都会以另一种方式归来",
+            "别让任何人消耗你内心的晴朗，生活应该是被热爱的人和事填满",
+            "时间会过滤掉不属于你的东西",
+            "努力不是为了超越别人，而是为了成为更好的自己",
+            "有些路，只能一个人走，这不是孤独，而是选择",
+            "你若盛开，清风自来，心若浮沉，浅笑安然",
+            "生活不会辜负每一个用力奔跑的人",
+            "每一个不曾起舞的日子，都是对生命的辜负",
+            "重要的不是你从哪里来，而是你要到哪里去",
+            "当你觉得为时已晚的时候，恰恰是最早的时候",
+            "命运的馈赠，早已在暗中标好了价格",
+            "你的气质里，藏着你读过的书和走过的路",
+            "生活就像一盒巧克力，你永远不知道下一块是什么味道",
+            "改变能改变的，接受不能改变的，是智慧",
+            "成功的秘诀，在于对目标的执着追求",
+            "幸福往往藏在那些看似平凡的日常里",
+            "真正的自由，是内心的丰盈与独立",
+            "世界上只有一种真正的英雄主义，那就是认清生活的真相后依然热爱生活",
+            "人生没有白走的路，每一步都算数"
         ];
 
         function askQuestion() {
             const questionInput = document.getElementById('question');
             const thinkingDiv = document.getElementById('thinking');
             const resultDiv = document.getElementById('result');
+            const actionsDiv = document.getElementById('actions');
             const question = questionInput.value.trim();
-            
+
             if (!question) {
                 alert("请先写下你的问题！");
                 return;
             }
 
-            // 显示“正在翻动书页”，并添加闪烁类
-            thinkingDiv.textContent = "📖 正在翻动书页...";
-            thinkingDiv.classList.add("blinking");
+            // 显示书页翻转动画
+            thinkingDiv.innerHTML = `
+                <div class="book-animation">
+                    <div class="page"></div>
+                    <div class="page"></div>
+                    <div class="page"></div>
+                    <div class="page"></div>
+                    <div class="page"></div>
+                </div>
+            `;
 
-            // 使用 setTimeout 模拟思考时间
+            resultDiv.innerHTML = "";
+            actionsDiv.style.display = "none";
+
+            // 模拟思考时间
             setTimeout(() => {
-                // ✅ 关键修复：从 book 数组中随机选择一个答案
                 const randomIndex = Math.floor(Math.random() * book.length);
-                const answer = book[randomIndex]; // 定义 answer 变量
+                const answer = book[randomIndex];
 
-                // 停止思考动画，显示结果
-                thinkingDiv.textContent = "";
-                thinkingDiv.classList.remove("blinking");
-                
-                // 显示问题和答案
+                // 显示结果
+                thinkingDiv.innerHTML = "";
                 resultDiv.innerHTML = `<strong>${question} ?</strong><br><br>命运之书说：<br><em>${answer}</em>`;
-            }, 1500); // 1.5秒后显示答案
+                actionsDiv.style.display = "flex";
+            }, 1800);
+        }
+
+        function resetAll() {
+            document.getElementById('question').value = "";
+            document.getElementById('thinking').innerHTML = "";
+            document.getElementById('result').innerHTML = "";
+            document.getElementById('actions').style.display = "none";
+        }
+
+        function saveAnswer() {
+            alert("答案已保存到你的命运记录中！");
+        }
+
+        function shareAnswer() {
+            const result = document.getElementById('result').innerText;
+            if (navigator.share) {
+                navigator.share({
+                    title: '命运之书的启示',
+                    text: result
+                }).catch(console.error);
+            } else {
+                alert("你的浏览器不支持分享功能，可手动复制分享");
+            }
         }
 
         // 回车键提问
