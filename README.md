@@ -21,12 +21,12 @@
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/book-of-fate.git
+git clone https://github.com/jianlang829/Book-of-Destiny.git
 ```
 
 2. Navigate to the project directory:
 ```bash
-cd book-of-fate
+cd Book-of-Destiny
 ```
 
 3. Open `index.html` in your browser or use a local server:
