@@ -335,12 +335,111 @@
                 justify-content: center;
             }
         }
+
+        .theme-toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9C27B0, #673AB7);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(139, 0, 255, 0.3);
+            transition: all 0.3s ease;
+            padding: 0; /* 清除默认按钮内边距 */
+        }
+        .theme-toggle-btn:hover {
+            transform: rotate(15deg) scale(1.1); /*  hover时轻微旋转放大，增加互动感 */
+            box-shadow: 0 4px 12px rgba(139, 0, 255, 0.4);
+        }
+
+        /* 2. 暗黑模式核心样式（body[data-theme="dark"] 触发） */
+        body[data-theme="dark"] {
+            background-color: #1a1a2e; /* 深色背景，偏紫调，符合神秘感 */
+            background-image: radial-gradient(#9C27B00A 1px, transparent 1px); /* 弱化背景纹理，避免刺眼 */
+        }
+
+        /* 暗黑模式下的容器样式 */
+        body[data-theme="dark"] .container {
+            background-color: #24243e; /* 卡片深背景 */
+            border: 1px solid #3a3a5a; /* 深色边框，降低对比度 */
+            box-shadow: 0 8px 30px rgba(138, 43, 226, 0.15); /* 弱化阴影 */
+        }
+        body[data-theme="dark"] .container::before {
+            background-color: rgba(36, 36, 62, 0.95); /* 覆盖层同步变深 */
+        }
+
+        /* 暗黑模式下的文字与输入框 */
+        body[data-theme="dark"] h1 {
+            color: #b16ef3; /* 标题紫色变浅，更适配深色背景 */
+            text-shadow: 1px 1px 3px rgba(177, 110, 243, 0.2);
+        }
+        body[data-theme="dark"] .example-text {
+            color: #aaa; /* 示例文字变浅 */
+        }
+        body[data-theme="dark"] input[type="text"] {
+            background-color: #3a3a5a; /* 输入框深色背景 */
+            border-color: #4a4a6a; /* 输入框边框 */
+            color: #eee; /* 输入文字变白 */
+        }
+        body[data-theme="dark"] input[type="text"]:focus {
+            border-color: #b16ef3; /* 聚焦时边框紫色变浅 */
+            box-shadow: 0 0 0 4px rgba(177, 110, 243, 0.15);
+        }
+        body[data-theme="dark"] input[type="text"]::placeholder {
+            color: #888; /* 占位符文字变浅 */
+        }
+
+        /* 暗黑模式下的按钮 */
+        body[data-theme="dark"] button:not(.theme-toggle-btn):not(.reset-btn):not(.action-btn) {
+            background: linear-gradient(135deg, #b16ef3, #7e47c5); /* 主按钮紫色变浅，增强亮度 */
+        }
+        body[data-theme="dark"] .reset-btn {
+            background: linear-gradient(135deg, #888, #555); /* 重置按钮同步变深 */
+        }
+        body[data-theme="dark"] .action-btn {
+            border-color: #b16ef3; /* 功能按钮边框变浅 */
+            color: #b16ef3;
+        }
+        body[data-theme="dark"] .action-btn:hover {
+            background-color: rgba(177, 110, 243, 0.1); /*  hover背景同步适配 */
+        }
+
+        /* 暗黑模式下的结果区与动画 */
+        body[data-theme="dark"] #thinking {
+            color: #b16ef3; /* 思考文字变浅 */
+        }
+        body[data-theme="dark"] .page {
+            background-color: #3a3a5a; /* 书页动画背景变深 */
+            border-color: #4a4a6a;
+        }
+        body[data-theme="dark"] #result {
+            background: linear-gradient(135deg, #3a3a5a, #2a2a4a); /* 结果区深色背景 */
+            border-image: linear-gradient(to right, #b16ef3, #7e47c5) 1; /* 渐变虚线同步变浅 */
+            color: #eee; /* 结果文字变白 */
+        }
+        body[data-theme="dark"] #result strong {
+            color: #b16ef3; /* 强调文字变浅 */
+        }
+        body[data-theme="dark"] #result em {
+            color: #ff6b6b; /* 命运启示文字保留红色，增强对比 */
+        }
+
     </style>
 </head>
 <body>
     <div class="container" role="main">
         <div class="book-spine"></div>
         <h1 aria-label="命运之书标题">🔮 命运之书</h1>
+        <button id="themeToggle" class="theme-toggle-btn" aria-label="切换暗黑模式">
+        <i class="fas fa-moon"></i>
+        </button>
         <div class="input-container">
             <div class="example-text" aria-hidden="true">示例：我下周的考试能顺利吗？</div>
             <input type="text"
@@ -526,6 +625,43 @@
         window.addEventListener('load', () => {
             // 可以在这里添加更多预加载逻辑
         });
+
+        const initDarkMode = () => {
+            const themeToggleBtn = document.getElementById('themeToggle');
+            const body = document.body;
+            const icon = themeToggleBtn.querySelector('i');
+
+            // 1. 页面加载时，读取localStorage，判断是否开启暗黑模式
+            const savedTheme = localStorage.getItem('fortuneBookTheme');
+            if (savedTheme === 'dark') {
+                body.setAttribute('data-theme', 'dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun'); // 切换为太阳图标
+            }
+
+            // 2. 点击按钮切换主题
+            themeToggleBtn.addEventListener('click', () => {
+                const isDark = body.hasAttribute('data-theme');
+
+                if (isDark) {
+                    // 切换为亮色模式
+                    body.removeAttribute('data-theme');
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                    localStorage.setItem('fortuneBookTheme', 'light');
+                } else {
+                    // 切换为暗黑模式
+                    body.setAttribute('data-theme', 'dark');
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                    localStorage.setItem('fortuneBookTheme', 'dark');
+                }
+            });
+        };
+
+        // 页面加载完成后初始化暗黑模式
+        window.addEventListener('load', initDarkMode);
+
     </script>
 </body>
 </html>
