@@ -67,8 +67,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with magical intentions
 - Purple color palette designed for mystical experiences
 
+## Fastest
+
+- [Book of Fate](https://jianlang829.github.io/Book-of-Destiny/)
+
 ---
 
-⭐ Star this repository if you find the wisdom enlightening!
-```
+⭐ **Star this repository if you find the wisdom enlightening!**
 
+🚀 **Enjoy your mystical journey through the Book of Fate!**
